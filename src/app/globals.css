@@ -39,3 +39,33 @@ body {
   background: #d4943a33;
   color: var(--text-primary);
 }
+
+/* ── Mobile (< 768px) ── */
+@media (max-width: 768px) {
+  /* Hide custom cursor on touch */
+  body { cursor: auto; }
+
+  /* Section padding */
+  section {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+
+  /* Nav */
+  nav { padding: 18px 20px !important; }
+  .nav-desktop-links { display: none !important; }
+  .nav-mobile-menu { display: flex !important; }
+
+  /* Projects 2-col → 1-col */
+  .projects-grid { grid-template-columns: 1fr !important; }
+  .card-featured  { grid-template-columns: 1fr !important; }
+
+  /* Principles 2x2 → 1-col */
+  .principles-grid { grid-template-columns: 1fr !important; }
+
+  /* Contact 2-col → 1-col */
+  .contact-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+
+  /* Intro grids → 1-col */
+  .intro-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
+}
