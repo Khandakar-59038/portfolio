@@ -11,11 +11,27 @@ export default function Nav() {
       backdropFilter: 'blur(16px)',
     }}>
       {/* Logo */}
-      <a href="#" style={{ textDecoration: 'none', display: 'flex' }}>
-        <span style={{ fontSize: 18, fontWeight: 900, letterSpacing: -1, color: '#ede8e0' }}>
+      <a href="#" style={{ textDecoration: 'none', display: 'flex', alignItems: 'baseline', gap: 1 }}>
+        <span style={{
+          fontSize: 22, fontWeight: 900, letterSpacing: -2, color: '#ede8e0',
+          lineHeight: 1,
+        }}>
           K
         </span>
-        <span style={{ fontSize: 18, fontWeight: 900, color: '#d4943a' }}>.</span>
+        <span style={{
+          fontSize: 22, fontWeight: 900, letterSpacing: -2, color: '#d4943a',
+          lineHeight: 1,
+        }}>
+          M
+        </span>
+        <span style={{
+          fontSize: 10, fontWeight: 500, color: '#3a3730',
+          letterSpacing: '3px', textTransform: 'uppercase',
+          marginLeft: 6, alignSelf: 'center',
+          paddingLeft: 7, borderLeft: '1px solid #2c2926',
+        }}>
+          dev
+        </span>
       </a>
 
       {/* Desktop links */}
