@@ -1,5 +1,6 @@
 'use client'
 import { motion } from 'framer-motion'
+import { useState, useRef, useEffect } from 'react'
 import projects from '@/data/projects.json'
 
 const SKILLS = {
@@ -16,12 +17,145 @@ const fadeUp = (delay = 0) => ({
   transition: { duration: 0.6, delay, ease: [0.4, 0, 0.2, 1] as const },
 })
 
+function VideoModal({ src, title, onClose }: { src: string; title: string; onClose: () => void }) {
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const [muted, setMuted] = useState(false)
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  function toggleMute() {
+    if (!videoRef.current) return
+    videoRef.current.muted = !videoRef.current.muted
+    setMuted(videoRef.current.muted)
+  }
+
+  function goFullscreen() {
+    if (!videoRef.current) return
+    if (videoRef.current.requestFullscreen) {
+      videoRef.current.requestFullscreen()
+    }
+  }
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 9000,
+        background: 'rgba(0,0,0,0.92)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: 24,
+        backdropFilter: 'blur(8px)',
+      }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          position: 'relative',
+          width: '100%', maxWidth: 960,
+          background: '#131210',
+          border: '1px solid #2c2926',
+          borderRadius: 6,
+          overflow: 'hidden',
+        }}
+      >
+        {/* Header bar */}
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '14px 20px',
+          borderBottom: '1px solid #1e1c18',
+        }}>
+          <span style={{ fontSize: 12, color: '#7a7570', letterSpacing: '1px', textTransform: 'uppercase' }}>
+            {title}
+          </span>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {/* Mute toggle */}
+            <button
+              onClick={toggleMute}
+              style={{
+                background: '#1e1c18', border: '1px solid #2c2926',
+                color: muted ? '#d4943a' : '#ede8e0',
+                padding: '6px 14px', borderRadius: 3,
+                fontSize: 11, fontWeight: 600, letterSpacing: '1px',
+                cursor: 'pointer', transition: 'all 0.2s',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#d4943a55')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = '#2c2926')}
+            >
+              {muted ? '🔇 UNMUTE' : '🔊 MUTE'}
+            </button>
+            {/* Fullscreen */}
+            <button
+              onClick={goFullscreen}
+              style={{
+                background: '#1e1c18', border: '1px solid #2c2926',
+                color: '#ede8e0',
+                padding: '6px 14px', borderRadius: 3,
+                fontSize: 11, fontWeight: 600, letterSpacing: '1px',
+                cursor: 'pointer', transition: 'all 0.2s',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#d4943a55')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = '#2c2926')}
+            >
+              ⛶ FULLSCREEN
+            </button>
+            {/* Close */}
+            <button
+              onClick={onClose}
+              style={{
+                background: 'transparent', border: '1px solid #2c2926',
+                color: '#524e48',
+                padding: '6px 12px', borderRadius: 3,
+                fontSize: 14, cursor: 'pointer', transition: 'all 0.2s',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#ede8e0')}
+              onMouseLeave={e => (e.currentTarget.style.color = '#524e48')}
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+
+        {/* Video */}
+        <video
+          ref={videoRef}
+          src={src}
+          autoPlay
+          loop
+          playsInline
+          controls
+          style={{ width: '100%', display: 'block', maxHeight: '75vh', background: '#000' }}
+        />
+      </div>
+    </div>
+  )
+}
+
 export default function WhatIBuild() {
   const featured = projects.find(p => p.featured)
   const rest     = projects.filter(p => !p.featured)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [modalProject, setModalProject] = useState<typeof projects[0] | null>(null)
+
+  function openModal(project: typeof projects[0]) {
+    setModalProject(project)
+    setModalOpen(true)
+  }
 
   return (
     <section id="work" style={{ padding: '80px 48px', position: 'relative', zIndex: 5 }}>
+
+      {/* Video modal */}
+      {modalOpen && modalProject && (
+        <VideoModal
+          src={modalProject.video}
+          title={modalProject.title}
+          onClose={() => setModalOpen(false)}
+        />
+      )}
 
       {/* Header */}
       <motion.div {...fadeUp(0)}>
@@ -50,17 +184,41 @@ export default function WhatIBuild() {
             onMouseEnter={e => (e.currentTarget.style.borderColor = '#d4943a55')}
             onMouseLeave={e => (e.currentTarget.style.borderColor = '#2c2926')}
           >
-            {/* Video preview */}
-            <div style={{
-              background: '#0a0908', minHeight: 260,
-              position: 'relative', overflow: 'hidden',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
+            {/* Video preview — click to open modal */}
+            <div
+              onClick={() => openModal(featured)}
+              style={{
+                background: '#0a0908', minHeight: 260,
+                position: 'relative', overflow: 'hidden',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer',
+              }}
+            >
               <video
                 src={featured.video}
                 autoPlay muted loop playsInline
-                style={{ width: '90%', borderRadius: 3, border: '1px solid #2c2926', objectFit: 'cover' }}
+                style={{ width: '90%', borderRadius: 3, border: '1px solid #2c2926', objectFit: 'cover', pointerEvents: 'none' }}
               />
+              {/* Play overlay hint */}
+              <div style={{
+                position: 'absolute', inset: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                opacity: 0, transition: 'opacity 0.2s',
+                background: 'rgba(0,0,0,0.45)',
+              }}
+                onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
+                onMouseLeave={e => (e.currentTarget.style.opacity = '0')}
+              >
+                <div style={{
+                  width: 56, height: 56,
+                  background: '#d4943a',
+                  borderRadius: '50%',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 20,
+                }}>
+                  ▶
+                </div>
+              </div>
               <div style={{
                 position: 'absolute', inset: 0, pointerEvents: 'none',
                 background: 'radial-gradient(circle at 30% 50%, #d4943a0a, transparent 60%)',
@@ -90,18 +248,30 @@ export default function WhatIBuild() {
                 ))}
               </div>
               <div style={{ display: 'flex', gap: 12 }}>
-                <a href={featured.links.live} data-cursor-type="primary" style={{
-                  background: '#d4943a', color: '#0c0c0b',
-                  fontSize: 11, fontWeight: 700, padding: '8px 18px', borderRadius: 2,
-                  letterSpacing: '1px', textTransform: 'uppercase', textDecoration: 'none',
-                }}>
-                  View Project
-                </a>
+                <button
+                  onClick={() => openModal(featured)}
+                  data-cursor-type="primary"
+                  style={{
+                    background: '#d4943a', color: '#0c0c0b',
+                    fontSize: 11, fontWeight: 700, padding: '8px 18px', borderRadius: 2,
+                    letterSpacing: '1px', textTransform: 'uppercase',
+                    border: 'none', cursor: 'pointer',
+                    transition: 'background 0.2s',
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.background = '#e8a84a')}
+                  onMouseLeave={e => (e.currentTarget.style.background = '#d4943a')}
+                >
+                  ▶ View Project
+                </button>
                 <a href={featured.links.github} target="_blank" rel="noopener noreferrer" style={{
                   border: '1px solid #2c2926', color: '#524e48',
                   fontSize: 11, padding: '8px 18px', borderRadius: 2,
                   letterSpacing: '1px', textTransform: 'uppercase', textDecoration: 'none',
-                }}>
+                  transition: 'border-color 0.2s, color 0.2s',
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = '#d4943a55'; e.currentTarget.style.color = '#d4943a' }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = '#2c2926'; e.currentTarget.style.color = '#524e48' }}
+                >
                   GitHub ↗
                 </a>
               </div>
