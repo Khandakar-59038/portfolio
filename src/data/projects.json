@@ -1,0 +1,15 @@
+[
+  {
+    "id": "student-course-hub",
+    "title": "Student Course Hub",
+    "tag": "Featured · Sep 2024 – Present",
+    "description": "Sole architect and developer of a database-driven university platform — programme browsing, search, filtering, secure admin panel with full CRUD, and mailing list export. Built with zero external frameworks. Security-first: bcrypt, prepared statements, XSS protection.",
+    "tech": ["PHP", "MySQL", "MVC", "JavaScript", "HTML5 / CSS3", "WCAG2", "Git"],
+    "video": "/projects/student-course-hub.mp4",
+    "links": {
+      "live": "#",
+      "github": "https://github.com/Khandakar-59038"
+    },
+    "featured": true
+  }
+]
